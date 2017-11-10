@@ -1,0 +1,346 @@
+'Code Copied from Module 1 in Daily Sales Report Automation.xlsm
+
+Sub DailySalesReportAndSend()
+    'PURPOSE: Program loops through all of the client's brand/market combinations and sends formatted reports
+    'that safely match each receipient to the appropriate data.  Four reports, with different "looks", are
+    'created in each Excel file to display the data according to several relevant dimensions that a
+    'manager would need to quickly analyze the data.  Consolidated reports are also sent to the client's executive
+    'management.  These reports were previously manually assembled and sent, consuming excessive staff resources.
+    'Note the client uses the term distribution channel and brand interchangeably.
+    
+    'PROCESS FLOW: Program uses multi-dimensional arrays to associate the distribution channel/market combination
+    'with the personnel receiving the burst report.  Then, it loops through each recipient, filters the base data, and
+    'creates an Excel file with four formatted pivot table reports for quick analysis.  The program then sends
+    'each Excel file with an appropriate e-mail title and message.
+    
+    '***DECLARATIONS***
+    'mkt(,) array filters "Sales Office" in the base data
+    Dim mkt(3, 10) As String
+    
+    'for assigning e-mail titles
+    Dim dist(3) As String
+        dist(0) = "ACH"
+        dist(1) = "BTS"
+        dist(2) = "Consolidated" 'consolidated is the report for exec mgt
+    
+    'dist channel names for data filter
+    Dim distChan(3) As String
+        distChan(0) = "57"
+        distChan(1) = "58"
+        
+    'counters for dist chnls (ACH/BTS/Consolidated), markets(shown below)
+    Dim dci, mi As Integer
+    
+    'market assignments
+    'Distribution Channel 1 Markets
+    mkt(0, 0) = "JIDH"
+    mkt(0, 1) = "JMIO"
+    mkt(0, 2) = "JMND"
+    mkt(0, 3) = "JSMN"
+    mkt(0, 4) = "JSSI"
+    mkt(0, 5) = "JWSS"
+    mkt(0, 6) = "JWWN"
+    
+    'Distribution channel 2 mkts
+    mkt(1, 0) = "JACS"
+    mkt(1, 1) = "JIDH"
+    mkt(1, 2) = "JIMV"
+    mkt(1, 3) = "JLAN"
+    mkt(1, 4) = "JMIO"
+    mkt(1, 5) = "JMND"
+    mkt(1, 6) = "JSMN"
+    mkt(1, 7) = "JSSI"
+    mkt(1, 8) = "JWSS"
+    mkt(1, 9) = "JWWN"
+    
+    'Consolidated "mkts"
+    mkt(2, 0) = "Consolidated"
+    
+
+    'declare e-mail list arrays and counters
+    'toMail(dist chnl, market, person)
+    Dim toMail(0 To 2, 0 To 9, 0 To 2) As String
+    
+    'distribution channel 1 e-mails
+    toMail(0, 0, 0) = "name1@xseeds.com"
+    toMail(0, 0, 1) = "name1@xseeds.com"
+    toMail(0, 0, 2) = "name1@xseeds.com"
+    
+    toMail(0, 1, 0) = "name1@xseeds.com"
+    toMail(0, 1, 1) = "name1@xseeds.com"
+    toMail(0, 1, 2) = "name1@xseeds.com"
+    
+    toMail(0, 2, 0) = "name1@xseeds.com"
+    toMail(0, 2, 1) = "name1@xseeds.com"
+    toMail(0, 2, 2) = "name1@xseeds.com"
+    
+    toMail(0, 3, 0) = "name1@xseeds.com"
+    toMail(0, 3, 1) = "name1@xseeds.com"
+    toMail(0, 3, 2) = "name1@xseeds.com"
+    
+    toMail(0, 4, 0) = "name1@xseeds.com"
+    toMail(0, 4, 1) = "name1@xseeds.com"
+    
+    toMail(0, 5, 0) = "name1@xseeds.com"
+    toMail(0, 5, 1) = "name1@xseeds.com"
+    toMail(0, 5, 2) = "name1@xseeds.com"
+    
+    toMail(0, 6, 0) = "name1@xseeds.com"
+    toMail(0, 6, 1) = "name1@xseeds.com"
+    toMail(0, 6, 2) = "name1@xseeds.com"
+    
+    'distribution channel 2 e-mails
+    toMail(1, 0, 0) = "name1@xseed.com"
+    toMail(1, 0, 1) = "name1@xseed.com"
+    toMail(1, 0, 2) = "name1@xseed.com"
+
+    toMail(1, 1, 0) = "name1@xseed.com"
+    toMail(1, 1, 1) = "name1@xseed.com"
+    
+    toMail(1, 2, 0) = "name1@xseed.com"
+    toMail(1, 2, 1) = "name1@xseed.com"
+
+    toMail(1, 3, 0) = "name1@xseed.com"
+    toMail(1, 3, 1) = "name1@xseed.com"
+
+    toMail(1, 4, 0) = "name1@xseed.com"
+    toMail(1, 4, 1) = "name1@xseed.com"
+    toMail(1, 4, 2) = "name1@xseed.com"
+
+    toMail(1, 5, 0) = "name1@xseed.com"
+    toMail(1, 5, 1) = "name1@xseed.com"
+    
+    toMail(1, 6, 0) = "name1@xseed.com"
+    toMail(1, 6, 1) = "name1@xseed.com"
+    
+    toMail(1, 7, 0) = "name1@xseed.com"
+    toMail(1, 7, 1) = "name1@xseed.com"
+    toMail(1, 7, 2) = "name1@xseed.com"
+    
+    toMail(1, 8, 0) = "name1@xseed.com"
+    toMail(1, 8, 1) = "name1@xseed.com"
+    toMail(1, 8, 2) = "name1@xseed.com"
+    
+    toMail(1, 9, 0) = "name1@xseed.com"
+    toMail(1, 9, 1) = "name1@xseed.com"
+    toMail(1, 9, 2) = "name1@xseed.com"
+    
+    'Consolidated (distribution channel 3) e-mails
+    toMail(2, 0, 0) = "name1@xseed.com"
+    toMail(2, 0, 1) = "name1@xseed.com"
+    toMail(2, 0, 2) = "name1@xseed.com"
+    
+    '***LOOPING CODE***
+    'code loops through an array of dist channel/market combinations, filtering appropriate data and then clearing the filter
+    
+    ' nested for's loop through distribution channels and markets
+    For dci = 0 To 2
+        For mi = 0 To 9
+            'if mi index out of defined mkt range then exit for and go to next applicable distribution channel
+            If mkt(dci, mi) = "" Then Exit For
+            
+            'Rows(1).Select in "PasteData" sheet
+            ActiveWorkbook.Worksheets("PasteData").Select
+            
+            'If not a consolidated report for exec mgt, then filter by distribution channel and market
+            If dci <> 2 Then
+                Rows(1).AutoFilter _
+                    field:=Application.WorksheetFunction.Match("Distribution Channel", Range("A1:AZ1"), 0), _
+                    Criteria1:=distChan(dci), _
+                    visibledropdown:=True
+                  Rows(1).AutoFilter _
+                    field:=Application.WorksheetFunction.Match("Sales Office", Range("A1:AZ1"), 0), _
+                    Criteria1:=mkt(dci, mi), _
+                    visibledropdown:=True
+            End If
+                        
+           'copy/paste filtered data to new sheet and rename it.  This is
+           'the base data for the e-mail recipients' report
+            Range("A1").CurrentRegion.Select
+            Selection.Copy
+            Sheets.Add After:=ActiveSheet
+            ActiveSheet.Paste
+            Application.CutCopyMode = False
+            Application.ActiveSheet.Name = mkt(dci, mi)
+            
+            Sheets(mkt(dci, mi)).Select
+            Sheets(mkt(dci, mi)).Copy 'copies to new workbook
+            
+        'validate presence of data before pivoting and then create 4 pivot reports
+        If Selection.Rows.Count > 1 Then
+            
+            'Pivot I (Orders)
+                Dim objTable As PivotTable, objField As PivotField
+                
+                Set objTable = ActiveSheet.PivotTableWizard 'create pivot table object
+                
+                ' Specify row - if consolidated report, then add market
+                If dci <> 2 Then
+                    objTable.PivotFields("Name SB").Orientation = xlRowField
+                    objTable.PivotFields("Name AG").Orientation = xlRowField
+                    objTable.PivotFields("Sales Document").Orientation = xlRowField
+                Else
+                    objTable.PivotFields("Distribution Channel").Orientation = xlRowField
+                    objTable.PivotFields("Sales Office").Orientation = xlRowField
+                    objTable.PivotFields("Name SB").Orientation = xlRowField
+                    objTable.PivotFields("Name AG").Orientation = xlRowField
+                    objTable.PivotFields("Sales Document").Orientation = xlRowField
+                End If
+                
+               ' Specify col 's
+                    objTable.PivotFields("Sales Document Type").Orientation = xlColumnField
+                
+                ' Specify a data field with its summary function and format.
+                Set objField = objTable.PivotFields("Order Quantity")
+                    objField.Orientation = xlDataField
+                    objField.Function = xlSum
+                    objField.NumberFormat = "#,##0"
+                
+                'autofits pivot on current page and removes subtotals from a given field
+                ActiveSheet.PivotTables(1).TableRange1.Select
+                Selection.Columns.AutoFit
+                ActiveSheet.PivotTables(1).PivotFields("Name AG").Subtotals = Array _
+                        (False, False, False, False, False, False, False, False, False, False, False, False)
+                
+                Application.DisplayAlerts = True
+                
+                'Name pivot tab
+                Application.ActiveSheet.Name = mkt(dci, mi) + " Orders"
+                Cells(1, 1).Select
+                    
+                 'Copy Mkt Tab and Create Fresh Pivot
+                Application.Worksheets(mkt(dci, mi)).Select
+                Range("A1").CurrentRegion.Select
+                        
+            'Pivot II (Open Orders)
+                Set objTable = ActiveSheet.PivotTableWizard 'create pivot table object
+                
+                ' Specify row - if consolidated report, then add market
+                If dci <> 2 Then
+                    objTable.PivotFields("Name SB").Orientation = xlRowField
+                    objTable.PivotFields("Name AG").Orientation = xlRowField
+                    objTable.PivotFields("Sales Document").Orientation = xlRowField
+                Else
+                    objTable.PivotFields("Distribution Channel").Orientation = xlRowField
+                    objTable.PivotFields("Sales Office").Orientation = xlRowField
+                    objTable.PivotFields("Name SB").Orientation = xlRowField
+                    objTable.PivotFields("Name AG").Orientation = xlRowField
+                    objTable.PivotFields("Sales Document").Orientation = xlRowField
+                End If
+                      
+               ' Specify col 's
+                objTable.PivotFields("Sales Document Type").Orientation = xlColumnField
+                
+                ' Specify a data field with its summary function and format.
+                Set objField = objTable.PivotFields("Open deliver quant.")
+                    objField.Orientation = xlDataField
+                    objField.Function = xlSum
+                    objField.NumberFormat = "#,##0"  ' $ #,##0
+                
+                'autofits pivot on current page and removes subtotals from a given field
+                ActiveSheet.PivotTables(1).TableRange1.Select
+                Selection.Columns.AutoFit
+                ActiveSheet.PivotTables(1).PivotFields("Name AG").Subtotals = Array _
+                        (False, False, False, False, False, False, False, False, False, False, False, False)
+                
+                Application.DisplayAlerts = True
+                
+                'Name pivot tab
+                Application.ActiveSheet.Name = mkt(dci, mi) + " Open Orders"
+                Cells(1, 1).Select
+                    
+                'Copy Mkt Tab and Create Fresh Pivot
+                Application.Worksheets(mkt(dci, mi)).Select
+                Range("A1").CurrentRegion.Select
+
+            'Pivot III (By Size)
+                Set objTable = ActiveSheet.PivotTableWizard
+                ' Specify row - if consolidated report, then add market
+                If dci <> 2 Then
+                    objTable.PivotFields("SB_SALES_SEED_SIZE").Orientation = xlRowField
+                    objTable.PivotFields("Material Group Desc.").Orientation = xlRowField
+                    objTable.PivotFields("Description").Orientation = xlRowField
+                Else
+                    objTable.PivotFields("Distribution Channel").Orientation = xlRowField
+                    objTable.PivotFields("Sales Office").Orientation = xlRowField
+                    objTable.PivotFields("SB_SALES_SEED_SIZE").Orientation = xlRowField
+                    objTable.PivotFields("Material Group Desc.").Orientation = xlRowField
+                    objTable.PivotFields("Description").Orientation = xlRowField
+                End If
+                
+                'Specify a data field with its summary function and format.
+                 Set objField = objTable.PivotFields("Order Quantity")
+                    objField.Orientation = xlDataField
+                    objField.Function = xlSum
+                    objField.NumberFormat = "#,##0"  ' $ #,##0
+                
+                'autofits pivot on current page and removes subtotals from a given field
+                ActiveSheet.PivotTables(1).TableRange1.Select
+                Selection.Columns.AutoFit
+                Application.DisplayAlerts = True
+                
+                'Name pivot tab
+                Application.ActiveSheet.Name = mkt(dci, mi) + " By Size"
+                Cells(1, 1).Select
+                    
+                'Copy Mkt Tab and Create Fresh Pivot
+                 Application.Worksheets(mkt(dci, mi)).Select
+                 Application.Cells.Select
+                 Range("A1").CurrentRegion.Select
+                   
+            'Pivot IV (By Variety)
+                Set objTable = ActiveSheet.PivotTableWizard
+                ' Specify row - if consolidated report, then add market
+                If dci <> 2 Then
+                    objTable.PivotFields("Name SB").Orientation = xlRowField
+                    objTable.PivotFields("Sales Document Type").Orientation = xlRowField
+                    objTable.PivotFields("Name AG").Orientation = xlRowField
+                Else
+                    objTable.PivotFields("Distribution Channel").Orientation = xlRowField
+                    objTable.PivotFields("Sales Office").Orientation = xlRowField
+                    objTable.PivotFields("Name SB").Orientation = xlRowField
+                    objTable.PivotFields("Sales Document Type").Orientation = xlRowField
+                    objTable.PivotFields("Name AG").Orientation = xlRowField
+                End If
+                    
+                'Specify col 's
+                    objTable.PivotFields("Material Group Desc.").Orientation = xlColumnField
+                
+                'Specify a data field with its summary function and format.
+                 Set objField = objTable.PivotFields("Order Quantity")
+                    objField.Orientation = xlDataField
+                    objField.Function = xlSum
+                    objField.NumberFormat = "#,##0"  ' $ #,##0
+                
+                'autofits pivot on current page and removes subtotals from a given field
+                ActiveSheet.PivotTables(1).TableRange1.Select
+                Selection.Columns.AutoFit
+                Application.DisplayAlerts = True
+                
+                'Name pivot tab
+                Application.ActiveSheet.Name = mkt(dci, mi) + " By Variety"
+                Cells(1, 1).Select
+                 
+                Application.Worksheets(1).Select
+                     
+        
+            'Create and send e-mail
+            ActiveWorkbook.SendMail Array(toMail(dci, mi, 0), toMail(dci, mi, 1), toMail(dci, mi, 2)), _
+                    dist(dci) + " " + mkt(dci, mi) + " Daily Sales Report"
+        End If
+            
+            'close created workbook
+            ActiveWorkbook.Close (0)
+            
+           'select filtered data sheet and delete
+            Application.DisplayAlerts = False
+            Sheets(mkt(dci, mi)).Delete
+            Application.DisplayAlerts = True
+            
+            'return to full data set and clear the filter
+            ActiveWorkbook.Worksheets("PasteData").Select
+                 Rows.AutoFilter 'clears autofilter
+            
+        Next mi
+    Next dci
+End Sub
